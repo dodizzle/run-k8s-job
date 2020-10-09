@@ -10,6 +10,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/rest"
+	"sigs.k8s.io/yaml"
 )
 
 var (
@@ -52,34 +53,16 @@ func NewJobRunner(jc jobClient, pc podClient, pollInterval time.Duration, log lo
 	}
 }
 
-func (j *JobRunner) RunJob(ctx context.Context, jobPrefix, namespace, image string) (string, error) {
-	job, err := j.jc.Create(&v1.Job{
-		TypeMeta: metav1.TypeMeta{
-			Kind:       "Job",
-			APIVersion: "batch/v1",
-		},
-		ObjectMeta: metav1.ObjectMeta{
-			GenerateName: fmt.Sprintf("%s-", jobPrefix),
-			Namespace:    namespace,
-		},
-		Spec: v1.JobSpec{
-			BackoffLimit: intPtr(0),
-			Template: corev1.PodTemplateSpec{
-				ObjectMeta: metav1.ObjectMeta{
-					Name: fmt.Sprintf("%s-pod", jobPrefix),
-				},
-				Spec: corev1.PodSpec{
-					RestartPolicy: corev1.RestartPolicyNever,
-					Containers: []corev1.Container{
-						{
-							Name:  fmt.Sprintf("%s-con", jobPrefix),
-							Image: image,
-						},
-					},
-				},
-			},
-		},
-	})
+func (j *JobRunner) RunJob(ctx context.Context, dat []byte) (string, error) {
+	jsonBytes, _ := yaml.YAMLToJSON(dat)
+	var jobby = &v1.Job{}
+	err := yaml.Unmarshal(jsonBytes, jobby)
+	if err != nil {
+		panic(err)
+	}
+
+	job, err := j.jc.Create(jobby)
+	fmt.Println(job)
 
 	if err != nil {
 		return "", errors.Wrapf(errJobNotCreated, "error starting job: %v", err)

@@ -1,0 +1,80 @@
+{
+    "apiVersion": "batch/v1",
+    "kind": "Job",
+    "metadata": {
+        "name": "photo-scene-processor-psp-int-test",
+        "namespace": "helix-jobs"
+    },
+    "spec": {
+        "activeDeadlineSeconds": 1800,
+        "backoffLimit": 1,
+        "template": {
+            "spec": {
+                "containers": [
+                    {
+                        "args": [
+                            "-c",
+                            "make psp_int_test\n"
+                        ],
+                        "command": [
+                            "bash"
+                        ],
+                        "env": [
+                            {
+                                "name": "GOOGLE_APPLICATION_CREDENTIALS",
+                                "value": "/common/kubernetes-service-account.json"
+                            },
+                            {
+                                "name": "projectId",
+                                "value": "helix-dev-195819"
+                            },
+                            {
+                                "name": "logLevel",
+                                "value": "INFO"
+                            }
+                        ],
+                        "image": "us.gcr.io/helix-global/photo-scene-processor:int_test",
+                        "imagePullPolicy": "Always",
+                        "name": "photo-scene-processor-psp-int-test",
+                        "resources": {
+                            "limits": {
+                                "cpu": "2",
+                                "memory": "6Gi"
+                            },
+                            "requests": {
+                                "cpu": "2",
+                                "memory": "4Gi"
+                            }
+                        },
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/common",
+                                "name": "common"
+                            }
+                        ]
+                    }
+                ],
+                "nodeSelector": {
+                    "cloud.google.com/gke-accelerator": "nvidia-tesla-t4"
+                },
+                "restartPolicy": "Never",
+                "tolerations": [
+                    {
+                        "effect": "NoSchedule",
+                        "key": "nvidia.com/gpu",
+                        "operator": "Equal",
+                        "value": "present"
+                    }
+                ],
+                "volumes": [
+                    {
+                        "configMap": {
+                            "name": "kubernetes-common-configmap"
+                        },
+                        "name": "common"
+                    }
+                ]
+            }
+        }
+    }
+}

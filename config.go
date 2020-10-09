@@ -22,6 +22,7 @@ var (
 type ActionInput struct {
 	kubeconfigFile string
 	image          string
+	jobFile        string
 	jobName        string
 	namespace      string
 	clusterURL     string
@@ -31,8 +32,8 @@ type ActionInput struct {
 }
 
 func BuildK8sConfig(input ActionInput) (*rest.Config, error) {
-	if len(input.image) == 0 {
-		return nil, errors.New("'image' is a required input but was empty")
+	if len(input.jobFile) == 0 {
+		return nil, errors.New("'jobfile' is a required input but was empty")
 	}
 
 	if len(input.kubeconfigFile) == 0 {

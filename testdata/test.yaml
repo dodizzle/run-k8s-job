@@ -1,0 +1,48 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: photo-scene-processor-psp-int-test
+  namespace: helix-jobs
+spec:
+  template:
+    spec:
+      tolerations:
+      - key: "nvidia.com/gpu"
+        operator: "Equal"
+        value: "present"
+        effect: "NoSchedule"
+      containers:
+      - name: photo-scene-processor-psp-int-test
+        image: us.gcr.io/helix-global/photo-scene-processor:int_test
+        imagePullPolicy: Always
+        env:
+          - name: "GOOGLE_APPLICATION_CREDENTIALS"
+            value: "/common/kubernetes-service-account.json"
+          - name: "projectId"
+            value:  "helix-dev-195819"
+          - name: "logLevel"
+            value:  "INFO"
+        volumeMounts:
+          - mountPath: "/common"
+            name: "common"
+        command: ["bash"]
+        args:
+        - '-c'
+        - |
+          make psp_int_test
+        resources:
+          requests:
+            memory: "4Gi"
+            cpu: "2"
+          limits:
+            memory: "6Gi"
+            cpu: "2"
+      restartPolicy: Never
+      nodeSelector:
+        cloud.google.com/gke-accelerator: nvidia-tesla-t4
+      volumes:
+      - name: "common"
+        configMap:
+          name: "kubernetes-common-configmap"
+  backoffLimit: 1
+  activeDeadlineSeconds: 1800

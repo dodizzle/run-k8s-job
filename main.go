@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"io/ioutil"
 	"time"
 
 	"github.com/sethvargo/go-githubactions"
@@ -13,12 +14,13 @@ func main() {
 	action := githubactions.New()
 
 	input := ActionInput{
-		kubeconfigFile: action.GetInput("kubeconfig-file"),
+		kubeconfigFile: action.GetInput("kubeconfigfile"),
 		clusterURL:     action.GetInput("cluster-url"),
 		clusterToken:   action.GetInput("cluster-token"),
 		namespace:      action.GetInput("namespace"),
 		image:          action.GetInput("image"),
 		jobName:        action.GetInput("job-name"),
+		jobFile:        action.GetInput("jobfile"),
 		caFile:         action.GetInput("ca-file"),
 		allowInsecure:  action.GetInput("allow-insecure"),
 	}
@@ -42,7 +44,8 @@ func main() {
 	runner := NewJobRunner(clientset.BatchV1().Jobs(input.namespace), clientset.CoreV1().Pods(input.namespace), 5*time.Second, action)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Minute)
-	logs, err := runner.RunJob(ctx, input.jobName, input.namespace, input.image)
+	dat, err := ioutil.ReadFile(input.jobFile)
+	logs, err := runner.RunJob(ctx, dat)
 	defer cancel()
 
 	if err != nil {
@@ -54,4 +57,10 @@ func main() {
 	}
 
 	action.Debugf("job completed successfully\njob logs:\n%s", logs)
+}
+
+func check(e error) {
+	if e != nil {
+		panic(e)
+	}
 }
