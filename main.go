@@ -14,18 +14,18 @@ func main() {
 	action := githubactions.New()
 
 	input := ActionInput{
-		kubeconfigFile: action.GetInput("kubeconfigfile"),
-		clusterURL:     action.GetInput("cluster-url"),
-		clusterToken:   action.GetInput("cluster-token"),
-		namespace:      action.GetInput("namespace"),
-		image:          action.GetInput("image"),
-		jobName:        action.GetInput("job-name"),
-		jobFile:        action.GetInput("jobfile"),
-		caFile:         action.GetInput("ca-file"),
-		allowInsecure:  action.GetInput("allow-insecure"),
+		kubeconfig - file: action.GetInput("kubeconfig-file"),
+		clusterURL:        action.GetInput("cluster-url"),
+		clusterToken:      action.GetInput("cluster-token"),
+		namespace:         action.GetInput("namespace"),
+		image:             action.GetInput("image"),
+		jobName:           action.GetInput("job-name"),
+		jobFile:           action.GetInput("jobfile"),
+		caFile:            action.GetInput("ca-file"),
+		allowInsecure:     action.GetInput("allow-insecure"),
 	}
 
-	action.Debugf("kubeconfig input %s\n", input.kubeconfigFile)
+	action.Debugf("kubeconfig input %s\n", input.kubeconfig-file)
 
 	config, err := BuildK8sConfig(input)
 	if err != nil {
