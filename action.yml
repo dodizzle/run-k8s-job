@@ -21,6 +21,9 @@ inputs:
     description: 'Name of the job (note: used only as a prefix for an auto-generated job name)'
     required: false
     default: ${{github.repository}}-job  
+   jobfile: 
+    description: 'Path to yaml file containing the job'
+    required: false 
   namespace:
     description: 'Kubernetes namespace where the job will run'
     required: false
