@@ -4,7 +4,6 @@ import (
 	"encoding/base64"
 	"io/ioutil"
 	"os"
-	"strconv"
 
 	"github.com/pkg/errors"
 	"k8s.io/client-go/rest"
@@ -21,14 +20,12 @@ var (
 
 type ActionInput struct {
 	kubeconfigFile string
-	image          string
 	jobFile        string
 	jobName        string
 	namespace      string
 	clusterURL     string
 	clusterToken   string
 	caFile         string
-	allowInsecure  string
 }
 
 func BuildK8sConfig(input ActionInput) (*rest.Config, error) {
@@ -59,27 +56,11 @@ func buildConfigWithSecondaryAuth(input ActionInput) (*rest.Config, error) {
 		return nil, errors.Wrap(errNoAuth, "missing input for cluster authentication")
 	}
 
-	allowInsecure, err := strconv.ParseBool(input.allowInsecure)
-	if err != nil {
-		return nil, errors.Errorf("'allow-insecure input must be either 'true' or 'false', was %s", input.allowInsecure)
-	}
-
-	if !allowInsecure {
-		if len(input.caFile) == 0 {
-			return nil, errors.New("you must either include 'caPath' or set 'allow-insecure' to true")
-		}
-
-		if _, err := os.Stat(input.caFile); os.IsNotExist(err) {
-			return nil, errors.Errorf("could not locate file %s; please make sure the file is available in the runner's context", input.caFile)
-		}
-	}
-
 	config, err := clientcmd.BuildConfigFromFlags(input.clusterURL, "")
 	if err != nil {
 		return nil, err
 	}
 
-	config.Insecure = allowInsecure
 	config.BearerToken = input.clusterToken
 	config.CAFile = input.caFile
 

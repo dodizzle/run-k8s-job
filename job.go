@@ -60,9 +60,8 @@ func (j *JobRunner) RunJob(ctx context.Context, dat []byte) (string, error) {
 	if err != nil {
 		panic(err)
 	}
-
+	fmt.Println(jobby)
 	job, err := j.jc.Create(jobby)
-	fmt.Println(job)
 
 	if err != nil {
 		return "", errors.Wrapf(errJobNotCreated, "error starting job: %v", err)

@@ -14,15 +14,13 @@ func main() {
 	action := githubactions.New()
 
 	input := ActionInput{
-		kubeconfigFile: action.GetInput("kubeconfig-file"),
+		kubeconfigFile: action.GetInput("kubeconfigfile"),
 		clusterURL:     action.GetInput("cluster-url"),
 		clusterToken:   action.GetInput("cluster-token"),
 		namespace:      action.GetInput("namespace"),
-		image:          action.GetInput("image"),
 		jobName:        action.GetInput("job-name"),
 		jobFile:        action.GetInput("jobfile"),
 		caFile:         action.GetInput("ca-file"),
-		allowInsecure:  action.GetInput("allow-insecure"),
 	}
 
 	action.Debugf("kubeconfig input %s\n", input.kubeconfigFile)
@@ -43,8 +41,9 @@ func main() {
 
 	runner := NewJobRunner(clientset.BatchV1().Jobs(input.namespace), clientset.CoreV1().Pods(input.namespace), 5*time.Second, action)
 
-	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Minute)
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Minute)
 	dat, err := ioutil.ReadFile(input.jobFile)
+
 	logs, err := runner.RunJob(ctx, dat)
 	defer cancel()
 

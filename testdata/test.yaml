@@ -2,7 +2,7 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: photo-scene-processor-psp-int-test
-  namespace: helix-jobs
+  namespace: helix-int-tests
 spec:
   template:
     spec:

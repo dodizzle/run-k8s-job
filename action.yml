@@ -2,12 +2,9 @@ name: Run Kubernetes Job
 author: Brent Pendergraft
 description: 'Runs a Kubernetes Job and reports the output to stdout'
 inputs:
-  kubeconfig-file:
+  kubeconfigfile:
     description: 'base64 encoding of the kubectl config file (usually at ~/.kube/config)'
     required: false
-  image:
-    description: 'Name of the docker image in a remote repository (i.e. "debian")'
-    required: true
   cluster-url:
     description: 'Kubernetes cluster URL'
     required: false
@@ -28,10 +25,6 @@ inputs:
     description: 'Kubernetes namespace where the job will run'
     required: false
     default: 'default'
-  allowInsecure:
-    description: 'Connect to Kubernetes API server without TLS (not recommended)'
-    required: false
-    default: "false"
 
 runs:
   using: docker
